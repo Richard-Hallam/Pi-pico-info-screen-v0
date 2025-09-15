@@ -3,6 +3,13 @@ from picographics import PicoGraphics, DISPLAY_PICO_DISPLAY_2, PEN_RGB332
 from pimoroni import RGBLED
 from machine import Pin
 
+#wifi imports
+import network
+import socket
+import rp2
+
+import secrets
+
 #configure display
 display = PicoGraphics(DISPLAY_PICO_DISPLAY_2, pen_type= PEN_RGB332, rotate=0)
 display.set_backlight(0.5)
@@ -48,8 +55,31 @@ def  button_input_handler(menu):
             menu.selected -= 1
         else:
             menu.selected = len(menu.items) -1
+            
+    if but_a.value ==0:
+        pass
+    
+    if but_b.value== 0:
+        pass
     menu.draw_menu()
+    
 #wifi setup
+ssid = secrets.SSID
+wifi_password = secrets.PASSWORD
+rp2.country('GB')
+
+
+wlan = network.WLAN(network.STA_IF)
+wlan.active(True)
+wlan.connect(ssid, wifi_password)
+    
+max_wait = 10
+while max_wait > 0:
+    if wlan.status() < 0 or wlan.status() >= 3:
+        break
+    max_wait -= 1
+    print("awaiting connection")
+    time.sleep(1)
 
 #github fetcher
 
@@ -85,7 +115,14 @@ menu = Menu(mainMenu)
 #setup
 menu.draw_menu()
 
+#temp testing
+import urequests
+r = urequests.get("http://www.google.com")
+print(r.content)
+r.close()
+
 #main loop
 while True:
     button_input_handler(menu)
     time.sleep(0.1)
+    
