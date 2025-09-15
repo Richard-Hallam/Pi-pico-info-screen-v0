@@ -8,9 +8,11 @@ import network
 import socket
 import rp2
 import ntptime
-import urequests
 
+
+#local file import
 import secrets
+import weather_api
 
 #configure display
 display = PicoGraphics(DISPLAY_PICO_DISPLAY_2, pen_type= PEN_RGB332, rotate=0)
@@ -59,7 +61,12 @@ def  button_input_handler(menu):
             menu.selected = len(menu.items) -1
             
     if but_a.value ==0:
-        pass
+        if menu.selected == 0:
+            pass
+        elif menu.selected == 1:
+            open_weather_menu()
+        elif menu.selected == 2:
+            open_clock()
     
     if but_b.value== 0:
         pass
@@ -89,33 +96,6 @@ while max_wait > 0:
 
 
 #github fetcher
-
-
-#weather fetcher
-def weather_api_call():
-    print('fetching weather data')
-    try:
-        api_key = secrets.WEATHER_API_KEY
-        url = f"http://api.openweathermap.org/data/2.5/forecast?lat={secrets.LAT}&lon={secrets.LONG}&appid={api_key}&units=metric"
-        r = urequests.get(url)
-        #print(r)
-        #print(r.content)
-        #print(r.status_code)
-        return r.content
-    except Exception as e:
-        print('failed to get weather data:', e)
-        
-
-def parse_weather_api_response(response):
-    print('test')
-    l1 = []
-    for i in response.list:
-        l1.append(i)
-        print(i, '\n')
-        time.sleep(1)
-
-def process_weather_response(response):
-    pass
 
 
 #clock
@@ -149,7 +129,7 @@ menu = Menu(mainMenu)
 #setup
 menu.draw_menu()
 
-parse_weather_api_response(weather_api_call())
+weather_api.parse_weather_api_response(weather_api.weather_api_call())
 
 #main loop
 while True:
