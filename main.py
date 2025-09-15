@@ -7,6 +7,8 @@ from machine import Pin
 import network
 import socket
 import rp2
+import ntptime
+import urequests
 
 import secrets
 
@@ -63,6 +65,7 @@ def  button_input_handler(menu):
         pass
     menu.draw_menu()
     
+    
 #wifi setup
 ssid = secrets.SSID
 wifi_password = secrets.PASSWORD
@@ -76,16 +79,47 @@ wlan.connect(ssid, wifi_password)
 max_wait = 10
 while max_wait > 0:
     if wlan.status() < 0 or wlan.status() >= 3:
+        print('connected')
         break
     max_wait -= 1
     print("awaiting connection")
     time.sleep(1)
 
+
+
+
 #github fetcher
 
+
 #weather fetcher
+def weather_api_call():
+    print('fetching weather data')
+    try:
+        api_key = secrets.WEATHER_API_KEY
+        url = f"http://api.openweathermap.org/data/2.5/forecast?lat={secrets.LAT}&lon={secrets.LONG}&appid={api_key}&units=metric"
+        r = urequests.get(url)
+        #print(r)
+        #print(r.content)
+        #print(r.status_code)
+        return r.content
+    except Exception as e:
+        print('failed to get weather data:', e)
+        
+
+def parse_weather_api_response(response):
+    print('test')
+    l1 = []
+    for i in response.list:
+        l1.append(i)
+        print(i, '\n')
+        time.sleep(1)
+
+def process_weather_response(response):
+    pass
+
 
 #clock
+
 
 #menu class
 class Menu:
@@ -115,11 +149,7 @@ menu = Menu(mainMenu)
 #setup
 menu.draw_menu()
 
-#temp testing
-import urequests
-r = urequests.get("http://www.google.com")
-print(r.content)
-r.close()
+parse_weather_api_response(weather_api_call())
 
 #main loop
 while True:
