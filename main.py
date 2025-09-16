@@ -1,4 +1,4 @@
-import time, gc
+import time
 from picographics import PicoGraphics, DISPLAY_PICO_DISPLAY_2, PEN_RGB332
 from pimoroni import RGBLED
 from machine import Pin
@@ -9,6 +9,8 @@ import socket
 import rp2
 import ntptime
 
+#api call imports
+import requests
 
 #local file import
 import secrets
@@ -39,10 +41,16 @@ led = RGBLED(6,7,8)
 led.set_rgb(0,0,0)
 
 def clear():
-    display.set_pen(black)
+    display.set_pen(BLACK)
     led.set_rgb(0,0,0)
     display.clear()
     display.update()
+    
+
+"""
+Calculates the width of the  display then splits strings to fit on them by
+inserting newline escape characters
+"""
 
 
 def  button_input_handler(menu):
@@ -60,11 +68,18 @@ def  button_input_handler(menu):
         else:
             menu.selected = len(menu.items) -1
             
-    if but_a.value ==0:
+    if but_a.value() ==0:
+        print(menu.selected)
         if menu.selected == 0:
             pass
         elif menu.selected == 1:
-            open_weather_menu()
+            weather_con_message = 'Connecting to weather api please wait'
+            menu.clear_display()
+            display.text(weather_con_message, 0, 10)
+            display.update()
+            time.sleep(5)
+            weather = Page(weather_api.parse_weather_api_response(weather_api.weather_api_call()))
+            
         elif menu.selected == 2:
             open_clock()
     
@@ -96,10 +111,23 @@ while max_wait > 0:
 
 
 #github fetcher
-
+def get_github_chart():
+    pass
 
 #clock
-
+def open_clock():
+    active = 1
+    while active:
+        now = time.localtime()
+        h, m = now[3], now[4]
+        time_string = f"{h}:{m}"
+        display.set_pen(BLACK)
+        display.clear()
+        display.set_pen(WHITE)
+        display.text(time_string, 10, 5, 200, 10)
+        display.update()
+        if but_b.value() == 0:
+            active = 0
 
 #menu class
 class Menu:
@@ -109,11 +137,14 @@ class Menu:
         self.cursor = '>'
         self.colour = "WHITE"
         
-    def draw_menu(self):
+    def clear_display(self):
         display.set_pen(BLACK)
         display.clear()
         display.set_pen(WHITE)
         
+        
+    def draw_menu(self):
+        self.clear_display()
         line = 10
         for i in range(len(self.items)):
             menuItem = self.items[i]
@@ -123,13 +154,39 @@ class Menu:
             line += 20
         display.update()
 
+
+class Page:
+    def __init__(self, content):
+        self.colour = 'WHITE'
+        self.escape_but = 'B'
+        self.content = content
+    
+    
+    def draw_page(content):
+        display.set_pen(BLACK)
+        display.clear()
+        display.set_pen(WHITE)
+        
+        line = 10
+        for i in range(len(self.content)):
+            item = self.items[i]
+            if item[0] == '|':
+                pass #handle image
+            else:
+                display.text(item, 80, line)
+                line += 20
+        display.update()
+        
+        
+        
 mainMenu = ["github", "weather", "clock"]
 menu = Menu(mainMenu)
+
 
 #setup
 menu.draw_menu()
 
-weather_api.parse_weather_api_response(weather_api.weather_api_call())
+#weather_api.parse_weather_api_response(weather_api.weather_api_call())
 
 #main loop
 while True:
