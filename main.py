@@ -120,7 +120,10 @@ def open_clock():
     while active:
         now = time.localtime()
         h, m = now[3], now[4]
+        if m < 10:
+            m = '0' + str(m)
         time_string = f"{h}:{m}"
+        print(time_string)
         display.set_pen(BLACK)
         display.clear()
         display.set_pen(WHITE)
