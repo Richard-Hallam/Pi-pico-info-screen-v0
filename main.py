@@ -118,16 +118,17 @@ def get_github_chart():
 def open_clock():
     active = 1
     while active:
+        x = 15
+        y = 70 # puts clock halfway up screen
         now = time.localtime()
         h, m = now[3], now[4]
         if m < 10:
             m = '0' + str(m)
         time_string = f"{h}:{m}"
-        print(time_string)
         display.set_pen(BLACK)
         display.clear()
         display.set_pen(WHITE)
-        display.text(time_string, 10, 5, 200, 10)
+        display.text(time_string, x, y, 0, 13)
         display.update()
         if but_b.value() == 0:
             active = 0
