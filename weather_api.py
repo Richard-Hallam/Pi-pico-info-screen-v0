@@ -1,6 +1,8 @@
 import secrets
 import time
 import urequests
+import ujson
+
 
 def weather_api_call():
     print('fetching weather data')
@@ -18,9 +20,24 @@ def weather_api_call():
         
 
 def parse_weather_api_response(response):
-    print('test')
-    l1 = []
-    for i in response.content:
-        l1.append(i)
-        print(i, '\n')
-        time.sleep(1)
+    #data = json.loads(response)
+    #print(data['list'])
+    try:
+        data = ujson.loads(response)
+    except ValueError as e:
+        print("error: ", e)
+        
+    
+    list_of_lists = [
+    [
+        entry["dt_txt"],
+        entry["main"]["temp"] -273.15,
+        entry["main"]["humidity"],
+        entry["wind"]["speed"],
+        entry["weather"][0]["description"]
+    ]
+    for entry in data["list"]
+]
+    for entry in list_of_lists:
+        print(entry)
+    time.sleep(1)

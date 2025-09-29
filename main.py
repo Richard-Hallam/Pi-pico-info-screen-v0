@@ -15,6 +15,15 @@ import requests
 #local file import
 import secrets
 import weather_api
+#temp for walking in weather api delete when done
+try:
+    with open('example.json', 'r') as file:
+        weather_api_mock = file.read()
+except OSError:
+    print('mock weather data file missing')
+    
+weather_api.parse_weather_api_response(weather_api_mock)
+
 
 #configure display
 display = PicoGraphics(DISPLAY_PICO_DISPLAY_2, pen_type= PEN_RGB332, rotate=0)
