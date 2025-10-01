@@ -15,14 +15,6 @@ import requests
 #local file import
 import secrets
 import weather_api
-#temp for walking in weather api delete when done
-try:
-    with open('example.json', 'r') as file:
-        weather_api_mock = file.read()
-except OSError:
-    print('mock weather data file missing')
-    
-weather_api.parse_weather_api_response(weather_api_mock)
 
 
 #configure display
@@ -82,17 +74,11 @@ def  button_input_handler(menu):
         if menu.selected == 0:
             pass
         elif menu.selected == 1:
-            weather_con_message = 'Connecting to weather api please wait'
-            menu.clear_display()
-            display.text(weather_con_message, 0, 10)
-            display.update()
-            time.sleep(5)
-            weather = Page(weather_api.parse_weather_api_response(weather_api.weather_api_call()))
-            
+            open_weather()
         elif menu.selected == 2:
             open_clock()
     
-    if but_b.value== 0:
+    if but_b.value() == 0:
         pass
     menu.draw_menu()
     
@@ -142,6 +128,27 @@ def open_clock():
         if but_b.value() == 0:
             active = 0
 
+
+def open_weather():
+    weather_active = True
+    weather_con_message = 'Connecting to weather api\nplease wait'
+    menu.clear_display()
+    display.text(weather_con_message, 0, 10)
+    display.update()
+    #time.sleep(5)
+    #data = weather_api.parse_weather_api_response(weather_api.weather_api_call())
+    #load mock data for testing
+    with open('example.json', 'r') as file:
+        mock_data = file.read()
+            
+    data = weather_api.parse_weather_api_response(mock_data)
+    weather_page = Page(data)
+    weather_page.draw_page(data)
+    while weather_active:
+        if but_b.value() == 0:
+            weather_active = False
+    
+    
 #menu class
 class Menu:
     def __init__(self, itemList):
@@ -175,18 +182,18 @@ class Page:
         self.content = content
     
     
-    def draw_page(content):
+    def draw_page(self, content):
         display.set_pen(BLACK)
         display.clear()
         display.set_pen(WHITE)
         
         line = 10
         for i in range(len(self.content)):
-            item = self.items[i]
+            item = content[i]
             if item[0] == '|':
                 pass #handle image
             else:
-                display.text(item, 80, line)
+                display.text(str(item), 0, line)
                 line += 20
         display.update()
         

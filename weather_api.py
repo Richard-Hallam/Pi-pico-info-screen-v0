@@ -12,7 +12,7 @@ def weather_api_call():
         r = urequests.get(url)
         print(r.status_code)
         if r.status_code == 200:
-            return r
+            return r.text
         else:
             return 0 # handle where data is passed to.
     except Exception as e:
@@ -31,13 +31,11 @@ def parse_weather_api_response(response):
     list_of_lists = [
     [
         entry["dt_txt"],
-        entry["main"]["temp"] -273.15,
+        entry["main"]["temp"],
         entry["main"]["humidity"],
         entry["wind"]["speed"],
         entry["weather"][0]["description"]
     ]
     for entry in data["list"]
 ]
-    for entry in list_of_lists:
-        print(entry)
-    time.sleep(1)
+    return list_of_lists
